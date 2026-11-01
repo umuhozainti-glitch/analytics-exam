@@ -5,11 +5,27 @@ from collections import Counter
 from pathlib import Path
 import happybase
 
+
+def ensure_schema(connection):
+    """Create the project tables on a fresh HBase instance without dropping data."""
+    existing = {name if isinstance(name, bytes) else name.encode("utf-8") for name in connection.tables()}
+    if b"user_events" not in existing:
+        connection.create_table("user_events", {
+            "event": {"max_versions": 1, "compression": "SNAPPY"},
+            "context": {"max_versions": 1, "compression": "SNAPPY"},
+        })
+    if b"product_daily_metrics" not in existing:
+        connection.create_table("product_daily_metrics", {
+            "metrics": {"max_versions": 1, "compression": "SNAPPY"},
+        })
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--data-dir", default="data"); p.add_argument("--host", default="localhost")
     p.add_argument("--port", type=int, default=9090); p.add_argument("--limit", type=int, default=None)
     args = p.parse_args(); connection = happybase.Connection(args.host, args.port)
+    ensure_schema(connection)
     events, metrics, seen = connection.table("user_events"), connection.table("product_daily_metrics"), 0
     counts = Counter()
     with events.batch(batch_size=1000) as batch:

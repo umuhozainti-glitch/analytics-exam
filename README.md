@@ -42,8 +42,10 @@ to each JSON collection when testing; omit it for the full data set.
 
 ## HBase
 
-Use your course Docker/cloud HBase instance, execute `hbase/schema.hbase` in
-the HBase shell, then run:
+Use your course Docker/cloud HBase instance and make sure its Thrift service is
+running on port 9090. `load_sessions.py` creates the project tables if they are
+missing; `hbase/schema.hbase` contains the equivalent manual shell commands.
+Then run:
 
 ```powershell
 python hbase/load_sessions.py --data-dir data --host localhost --limit 100000
