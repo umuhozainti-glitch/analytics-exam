@@ -1,0 +1,10 @@
+pyspark>=3.5
+pymongo>=4.6
+happybase>=1.2
+pandas>=2.1
+matplotlib>=3.8
+seaborn>=0.13
+faker>=24.0
+numpy>=1.26
+Markdown>=3.6
+reportlab>=4.2

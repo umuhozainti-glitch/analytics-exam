@@ -1,0 +1,17 @@
+# Run in the HBase shell. Two query-driven tables avoid costly scans.
+
+# Events are keyed user_id|UTC timestamp|session id|sequence. Prefix scans
+# retrieve one user's chronological history; event columns remain sparse.
+create 'user_events',
+  {NAME => 'event', VERSIONS => 1, COMPRESSION => 'SNAPPY'},
+  {NAME => 'context', VERSIONS => 1, COMPRESSION => 'SNAPPY'}
+
+# Daily product metrics are pre-aggregated for product/time range queries.
+create 'product_daily_metrics',
+  {NAME => 'metrics', VERSIONS => 1, COMPRESSION => 'SNAPPY'}
+
+# Example: all events for a user. `|` sorts after ISO timestamps in this key.
+scan 'user_events', {STARTROW => 'user_000042|', STOPROW => 'user_000042|~', LIMIT => 100}
+
+# Example: product metrics in a date range.
+scan 'product_daily_metrics', {STARTROW => 'prod_00123|2026-08-01', STOPROW => 'prod_00123|2026-09-01'}
